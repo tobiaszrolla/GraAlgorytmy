@@ -7,7 +7,7 @@ find_package(SFML 2.5 REQUIRED COMPONENTS graphics window system)
 
 include_directories(${SFML_INCLUDE_DIR})
 
-add_library(warcaby_lib src/warcaby.cpp src/plansza.cpp)
+add_library(warcaby_lib src/warcaby.cpp src/plansza.cpp include/Judge.cpp include/Bot.cpp)
 
 target_link_libraries(warcaby_lib sfml-graphics sfml-window sfml-system)
 

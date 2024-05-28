@@ -16,15 +16,15 @@ class PionLog
     }
     ~PionLog(){};
     /*Getter*/
-    int get_x()
+    int get_x() const
         {
             return x;
         }
-    int get_y()
+    int get_y() const
         {
             return y;
         }
-    bool get_lock()
+    bool get_lock() const
     {
         return lock;
     }

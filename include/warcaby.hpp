@@ -5,6 +5,8 @@
 #include <vector>
 #include <iostream>
 #include "plansza.hpp"
+#include "Judge.hpp"
+#include "Bot.hpp"
 //Główna klasa gry
 class Warcaby
 {
@@ -24,9 +26,14 @@ private:
     std::vector<sf::CircleShape> piony_bot;
     std::vector<sf::CircleShape> piony_gracz;
     Plansza plansza;
+    Judge judge;
+    Bot bot;
     //ZMienne menu wyboru
     int selected_index = -1;
     bool pion_selected = false;
+    bool bot_turn = false;
+    // Zmiena zawierająca rozztrzygnięcie sędziego
+    int judge_choice;
     /*metody prywatne*/
     void variableInit();
     void windowInit();
