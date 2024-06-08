@@ -18,8 +18,6 @@ void Warcaby::windowInit()
     this->videmod.width = hight_wide;
     //inicjalizacja window na jej rozmiar Tital bar i close pozwalają na zamknięcie
     this->window = new sf::RenderWindow(sf::VideoMode(hight_wide, hight_wide), "Warcaby", sf::Style::Titlebar | sf::Style::Close);
-    //zmiana odświerzania
-    //this->window->setFramerateLimit(40);
     this->window->setVerticalSyncEnabled(false);
 }
 void Warcaby::pollEvents()
@@ -73,13 +71,13 @@ void Warcaby::pollPionGracz(int index)
         Określa ruch po wciśnięciu pionka
         Przyjmuje index klikniętego
 
-        pion_pos wartość nowej pozycji 2 kliknięcia
         index rozpoznaje sprawdzany pionek
         mov_res sprawdza czy doszło do przesunięcia
     */
-   bool move_result = false;
+   //bool move_result = false;
    if(ev.type == sf::Event::MouseButtonPressed)
    {
+    bool move_result = false;
     if(piony_gracz[index].getPosition().x >= mouse_pos.x &&
        piony_gracz[index].getPosition().y >= mouse_pos.y &&  
        (piony_gracz[index].getPosition().x - fild) <= mouse_pos.x &&
@@ -93,9 +91,52 @@ void Warcaby::pollPionGracz(int index)
             std::cout<<piony_gracz[index].getPosition().x<<std::endl;
         }
        }
-   }
-    
-}
+    if((piony_gracz[index].getPosition().x + 2 *fild)>= mouse_pos.x &&
+       piony_gracz[index].getPosition().y >= mouse_pos.y &&  
+       (piony_gracz[index].getPosition().x + fild) <= mouse_pos.x &&
+       (piony_gracz[index].getPosition().y - fild) <= mouse_pos.y)
+       {
+        move_result = plansza.moveRightPlayer(index);
+        if(move_result)
+        {
+            std::cout<<piony_gracz[index].getPosition().x<<std::endl;
+            piony_gracz[index].setPosition(piony_gracz[index].getPosition().x + fild,piony_gracz[index].getPosition().y - fild);
+            std::cout<<piony_gracz[index].getPosition().x<<std::endl;
+        }
+       }
+    if(piony_gracz[index].getPosition().x  - fild >= mouse_pos.x &&
+       piony_gracz[index].getPosition().y  - fild >= mouse_pos.y &&  
+       (piony_gracz[index].getPosition().x - 2*fild) <= mouse_pos.x &&
+       (piony_gracz[index].getPosition().y - 2*fild) <= mouse_pos.y)
+       {
+        std::pair<bool,int> move_result = plansza.attactLeftPlayer(index);
+        if(move_result.first)
+        {
+            std::cout<<piony_gracz[index].getPosition().x<<std::endl;
+            piony_gracz[index].setPosition(piony_gracz[index].getPosition().x - 2 * fild ,piony_gracz[index].getPosition().y - 2*fild);
+            piony_bot.erase(piony_bot.begin() + move_result.second);
+            std::cout<<piony_gracz[index].getPosition().x<<std::endl;
+        }
+        }
+    if(piony_gracz[index].getPosition().x  + 3*fild >= mouse_pos.x &&
+       piony_gracz[index].getPosition().y  - fild >= mouse_pos.y &&  
+       (piony_gracz[index].getPosition().x + 2*fild) <= mouse_pos.x &&
+       (piony_gracz[index].getPosition().y - 2*fild) <= mouse_pos.y)
+       {
+        std::pair<bool,int> move_result = plansza.attactRightPlayer(index);
+        if(move_result.first)
+        {
+            std::cout<<piony_gracz[index].getPosition().x<<std::endl;
+            piony_gracz[index].setPosition(piony_gracz[index].getPosition().x + 2 * fild ,piony_gracz[index].getPosition().y - 2*fild);
+            piony_bot.erase(piony_bot.begin() + move_result.second);
+            std::cout<<piony_gracz[index].getPosition().x<<std::endl;
+        }
+        }
+        checkGameStatus();
+        bot_turn = true;
+    }
+
+};
 sf::CircleShape Warcaby::initPion(int x, int y,sf::Color color)
 {
     /*
@@ -108,7 +149,7 @@ sf::CircleShape Warcaby::initPion(int x, int y,sf::Color color)
     pion.setRadius(radius);
     pion.setFillColor(color);
     return pion;
-}
+};
 
 void Warcaby::initPionColection(std::vector<std::pair<int,int>> bot_pos, std::vector<std::pair<int,int>> gracz_pos)
 {
@@ -116,6 +157,8 @@ void Warcaby::initPionColection(std::vector<std::pair<int,int>> bot_pos, std::ve
         Metoda ustawia koeljne pionki bota na planszy
         w odpowiednich miejscach wstawia do wektora;
     */
+    piony_bot.clear();
+    piony_gracz.clear();
     for(int i = 0; i < bot_pos.size(); i++)
     {
         piony_bot.push_back(initPion(bot_pos[i].first,bot_pos[i].second, sf::Color::Red));
@@ -141,6 +184,34 @@ Warcaby::Warcaby()
 }
 Warcaby::~Warcaby()
 {
+    /*
+        usuwamy alokowane dynamiczne window
+    */
+    delete window;
+}
+//sprawdza stan gry
+void Warcaby::checkGameStatus()
+{
+    judge_choice = judge.judging(plansza);
+    if(judge_choice != 0)
+    {
+        if(judge_choice == -1000)
+        {
+            std::cout<<"Bot"<<std::endl;
+        }
+        else if(judge_choice == -1000)
+        {
+            std::cout<<"Gracz"<<std::endl;
+        }
+        else
+        {
+            std::cout<<"Remis"<<std::endl;
+        }
+        this->render();
+        sf::sleep(sf::milliseconds(1000));
+        plansza = Plansza();
+        this->initPionColection(this->plansza.getPionyBot(),this->plansza.getPionyGracz());
+    }
 }
 //zmienia stan okna
 void Warcaby::render()
@@ -158,9 +229,50 @@ void Warcaby::render()
     this->window->display();
 }
 //zmienia stan gry
-void Warcaby::update()
+/*void Warcaby::update()
 {
+    checkGameStatus();
     this->pollEvents();
+    if(bot_turn)
+    {
+        checkGameStatus();
+        this->render();
+        sf::sleep(sf::milliseconds(500));
+        bot_turn = false;
+        piony_bot.clear();
+        piony_gracz.clear();
+        plansza = bot.makeMove(plansza);
+        initPionColection(plansza.getPionyBot(), plansza.getPionyGracz());
+        judge_choice = judge.judging(plansza);
+        bool move_result;
+        int i = 0;
+        checkGameStatus();
+        this->render();
+    }
+}*/
+void Warcaby::update() {
+    checkGameStatus(); // Najpierw sprawdź stan gry
+
+    if (bot_turn) {
+        // Sprawdź stan gry przed ruchem bota
+        sf::sleep(sf::milliseconds(500));
+        checkGameStatus();
+        bot_turn = false;
+        piony_bot.clear();
+        piony_gracz.clear();
+        plansza = bot.makeMove(plansza);
+        initPionColection(plansza.getPionyBot(), plansza.getPionyGracz());
+        judge_choice = judge.judging(plansza);
+        bool move_result;
+        int i = 0;
+        checkGameStatus();
+    } 
+    else {
+        this->pollEvents();
+    }
+
+    // Renderuj zawsze po sprawdzeniu stanu gry
+    this->render();
 }
 /*Gettery*/
 const bool Warcaby::running() const

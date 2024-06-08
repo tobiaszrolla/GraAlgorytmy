@@ -31,6 +31,7 @@ int Judge::isBlockedGraczPion(const Plansza &plansza, int index)
     /*
         Karzdy pion zwycajny ma 4 ruchy
         metoda zwraca wartość ilość dostępych ruchów
+        wartość 0 oznacza zablokowanie piona
     */
     int wynik = 0;
     Plansza plansze[]{plansza,plansza,plansza,plansza};
@@ -89,18 +90,18 @@ int Judge::judging(Plansza plansza)
         break;
        }
     }
-    if(isBot == plansza.getPionyBot().size() && isGracz == plansza.getPionyGracz().size())
-    {
-        return 500;
-    }
-    else if(isBot == plansza.getPionyBot().size())
-    {
-        return 1000;
-    }
-    else if(isGracz == plansza.getPionyGracz().size())
-    {
-        return -1000;
-    }
+   if(isBot == 0 && isGracz == 0)
+   {
+    return 500;
+   }
+   else if(isBot == 0)
+   {
+    return 1000;
+   }
+   else if(isGracz == 0)
+   {
+    return -1000;
+   }
 
     return 0;
 }

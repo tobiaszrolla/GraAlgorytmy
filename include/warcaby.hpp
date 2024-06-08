@@ -45,6 +45,8 @@ private:
     void initPionColection(std::vector<std::pair<int,int>> bot_pos, std::vector<std::pair<int,int>> gracz_pos);
     //myszka klasa 
     void updateMousePosition();
+    //sprawdza stan gry
+    void checkGameStatus();
 public:
     //konstruktor destruktor
     Warcaby(/* args */);

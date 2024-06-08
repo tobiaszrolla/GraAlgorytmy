@@ -219,7 +219,7 @@ std::pair<bool,int> Plansza::attactLeftPlayer(int index)
 std::pair<bool, int> Plansza::attactRightPlayer(int index)
 {
     int index_oponent = -1;
-    if(piony_gracz[index].get_x() >= hight_wide -3*fild || piony_gracz[index].get_y() <= fild)
+    if(piony_gracz[index].get_x() >= hight_wide -2*fild || piony_gracz[index].get_y() <= fild)
     {
         return std::make_pair(false,index_oponent);
     }

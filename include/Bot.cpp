@@ -12,35 +12,38 @@ int Bot::Search(std::unique_ptr<Node> &ptr, int depth, double alpha, double beth
     }
     if(ptr->is_bot_turn)
     {
-        double minEval = 1000;
+        //double minEval = 1000;
         for(int i = 0; i<ptr->posiblitis.size(); i++)
         {
             double eval = Search(ptr->posiblitis[i], depth - 1, alpha, betha);
-            minEval = std::min(minEval, eval);
-            //alpha = std::min(alpha, eval);
+            //minEval = std::min(minEval, eval);
             betha = std::min(betha, eval);
             if (betha <= alpha) {
                 break; 
             }
         }
-        ptr->value = minEval;
-        return minEval;
+        /*ptr->value = minEval;
+        return minEval;*/
+        ptr->value = betha;
+        return betha;
     }
     else
     {
-        double maxEval = -1000;
+        //double maxEval = -1000;
         for(int i = 0; i<ptr->posiblitis.size(); i++)
         {
-            double maxEval;
+            //double maxEval;
             double eval = Search(ptr->posiblitis[i], depth - 1, alpha, betha);
-            maxEval = std::max(maxEval, eval);
+            //maxEval = std::max(maxEval, eval);
             alpha = std::max(alpha, eval);
             if (betha <= alpha) {
                 break; 
             }
         }
-        ptr->value = maxEval;
-        return maxEval;
+        /*ptr->value = maxEval;
+        return maxEval;*/
+        ptr->value = alpha;
+        return alpha;
     }
     
 }
@@ -63,10 +66,6 @@ void Bot::moveSimulation(std::unique_ptr<Node> &ptr, bool is_bot, int depht)
         {
             Plansza eval_plansza = ptr->curent;
             ptr->value = evaluation(eval_plansza);
-            /*if(ptr->value != 0)
-            {
-                std::cout<<"jest"<<ptr->value<<std::endl;
-            }*/
         }
         else if(verditc == 500)
         {
@@ -83,6 +82,28 @@ void Bot::moveSimulation(std::unique_ptr<Node> &ptr, bool is_bot, int depht)
     {
         for(int i = 0; i < ptr->curent.getPionyBot().size(); i++)
         {
+            Plansza plansza_attac_left = ptr->curent;
+            res = plansza_attac_left.attactLeftBot(i).first;
+            if(res)
+            {
+                std::unique_ptr<Node> new_node =std::make_unique<Node>();
+                new_node->curent = plansza_attac_left;
+                new_node->is_bot_turn = false;
+                new_node->value = 0;
+                moveSimulation(new_node, new_node->is_bot_turn,depht - 1);
+                ptr->posiblitis.push_back(std::move(new_node));
+            }
+            Plansza plansza_attac_right = ptr->curent;
+            res = plansza_attac_right.attactRightBot(i).first;
+            if(res)
+            {
+                std::unique_ptr<Node> new_node =std::make_unique<Node>();
+                new_node->curent = plansza_attac_right;
+                new_node->is_bot_turn = false;
+                new_node->value = 0;
+                moveSimulation(new_node, new_node->is_bot_turn,depht - 1);
+                ptr->posiblitis.push_back(std::move(new_node));
+            }
             Plansza plansza_mov_left = ptr->curent;
             res = plansza_mov_left.moveLeftBot(i);
             if(res)
@@ -108,28 +129,6 @@ void Bot::moveSimulation(std::unique_ptr<Node> &ptr, bool is_bot, int depht)
                 ptr->posiblitis.push_back(std::move(new_node));
 
             }
-            Plansza plansza_attac_left = ptr->curent;
-            res = plansza_attac_left.attactLeftBot(i).first;
-            if(res)
-            {
-                std::unique_ptr<Node> new_node =std::make_unique<Node>();
-                new_node->curent = plansza_attac_left;
-                new_node->is_bot_turn = false;
-                new_node->value = 0;
-                moveSimulation(new_node, new_node->is_bot_turn,depht - 1);
-                ptr->posiblitis.push_back(std::move(new_node));
-            }
-            Plansza plansza_attac_right = ptr->curent;
-            res = plansza_attac_right.attactRightBot(i).first;
-            if(res)
-            {
-                std::unique_ptr<Node> new_node =std::make_unique<Node>();
-                new_node->curent = plansza_attac_right;
-                new_node->is_bot_turn = false;
-                new_node->value = 0;
-                moveSimulation(new_node, new_node->is_bot_turn,depht - 1);
-                ptr->posiblitis.push_back(std::move(new_node));
-            }
         }
         
     }
@@ -137,6 +136,28 @@ void Bot::moveSimulation(std::unique_ptr<Node> &ptr, bool is_bot, int depht)
     {
         for(int i = 0; i < ptr->curent.getPionyGracz().size(); i++)
         {
+            Plansza plansza_attac_left = ptr->curent;
+            res = plansza_attac_left.attactLeftPlayer(i).first;
+            if(res)
+            {
+                std::unique_ptr<Node> new_node =std::make_unique<Node>();
+                new_node->curent = plansza_attac_left;
+                new_node->is_bot_turn = true;
+                new_node->value = 0;
+                moveSimulation(new_node, new_node->is_bot_turn,depht - 1);
+                ptr->posiblitis.push_back(std::move(new_node));
+            }
+            Plansza plansza_attac_right = ptr->curent;
+            res = plansza_attac_right.attactRightPlayer(i).first;
+            if(res)
+            {
+                std::unique_ptr<Node> new_node =std::make_unique<Node>();
+                new_node->curent = plansza_attac_right;
+                new_node->is_bot_turn = true;
+                new_node->value = 0;
+                moveSimulation(new_node, new_node->is_bot_turn,depht - 1);
+                ptr->posiblitis.push_back(std::move(new_node));
+            }
             Plansza plansza_mov_left = ptr->curent;
             res = plansza_mov_left.moveLeftPlayer(i);
             if(res)
@@ -161,28 +182,6 @@ void Bot::moveSimulation(std::unique_ptr<Node> &ptr, bool is_bot, int depht)
                 ptr->posiblitis.push_back(std::move(new_node));
 
             }
-            Plansza plansza_attac_left = ptr->curent;
-            res = plansza_attac_left.attactLeftPlayer(i).first;
-            if(res)
-            {
-                std::unique_ptr<Node> new_node =std::make_unique<Node>();
-                new_node->curent = plansza_attac_left;
-                new_node->is_bot_turn = true;
-                new_node->value = 0;
-                moveSimulation(new_node, new_node->is_bot_turn,depht - 1);
-                ptr->posiblitis.push_back(std::move(new_node));
-            }
-            Plansza plansza_attac_right = ptr->curent;
-            res = plansza_attac_right.attactRightPlayer(i).first;
-            if(res)
-            {
-                std::unique_ptr<Node> new_node =std::make_unique<Node>();
-                new_node->curent = plansza_attac_right;
-                new_node->is_bot_turn = true;
-                new_node->value = 0;
-                moveSimulation(new_node, new_node->is_bot_turn,depht - 1);
-                ptr->posiblitis.push_back(std::move(new_node));
-            }
         }
     }
 }
@@ -206,7 +205,8 @@ double Bot::evaluation(Plansza plansza)
     return(gracz_value + bot_value);*/
     double gr_nr = plansza.getPionyGracz().size();
     double bot_nr = plansza.getPionyBot().size();
-    return(gr_nr - bot_nr);
+    double wynik = gr_nr - bot_nr;
+    return(wynik);
 }
 bool Bot::botRightAttacer(Plansza &plansza, int index)
 {
@@ -224,7 +224,7 @@ Plansza Bot::makeMove(Plansza sytuacja)
     double bestValue = 1000;
     int bestIndex = 0;
 
-     Search(startingNode, MAX_DEPHT, -1000, 1000);
+    Search(startingNode, MAX_DEPHT, -1000, 1000);
     for(int i = 0; i < startingNode->posiblitis.size(); i++)
     {
         if(startingNode->posiblitis[i]->value < bestValue)
